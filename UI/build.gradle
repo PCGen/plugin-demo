@@ -1,0 +1,43 @@
+apply plugin: 'java-library-distribution'
+apply plugin : 'application'
+
+if (!hasProperty('mainClass')) {
+    ext.mainClass = 'net.sourceforge.javydreamercsw.Main'
+}
+mainClassName=mainClass
+
+dependencies {
+    // Notice that the Mode plugins are not dependencies.
+    //
+    // You can read more about how to add dependency here:
+    //   http://www.gradle.org/docs/current/userguide/dependency_management.html#sec:how_to_declare_your_dependencies
+    compile project(':PluginCore')
+}
+
+jar {
+    // Keep jar clean:
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.MF'
+    ext.cp = configurations.runtime.files.collect { "libs/$it.name" }.join(' ')
+    manifest {
+        attributes("Implementation-Title": project.name,
+            "Implementation-Version": version,
+            "Main-Class": mainClass)
+    }
+    // How-to add class path:
+    //     http://stackoverflow.com/questions/22659463/add-classpath-in-manifest-using-gradle
+    //     https://gist.github.com/simon04/6865179
+}
+
+task copyToLib(type: Copy) {
+    into "$buildDir/libs"
+    from configurations.runtime
+}
+
+build.dependsOn 'copyToLib','copyScripts'
+
+task copyScripts(type: Copy) {
+    into "$buildDir"
+    from "$projectDir"
+    include "run.bat"
+    include "run.sh"
+}

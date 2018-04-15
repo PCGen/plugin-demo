@@ -6,3 +6,4 @@
 /UI/build/
 /.gradle/
 /libs/
+/*.jar
